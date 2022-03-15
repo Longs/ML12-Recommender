@@ -464,7 +464,72 @@ for _ in top_50:
     if most_watched in genres_dict[_]:
         top += 1
 
+def similarity(v_a,v_b):
+    def mag(x):
+        return (np.dot(x.T,x))**0.5
+    return np.dot(np.transpose(v_a),v_b)/(mag(v_a)*mag(v_b))
+
+
+
+def most_similar_to(to):
+    sim={}
+    for movie_index in movies_dict.keys():
+        sim[movie_index] = similarity(v[to],v[movie_index])
+    sim.pop(to)
+
+    most_sim = sorted(sim,key=lambda k: sim[k])[-10:]
+    return most_sim
+
+out = most_similar_to(260)
+print(out)
+for _,movie in enumerate(out):
+    print(f"{movie}: {movies_dict[movie]}: {genres_dict[movie]}: {similarity(v[260],v[movie])}")
+
+out = most_similar_to(2628)
+print(out)
+for _,movie in enumerate(out):
+    print(f"{movie}: {movies_dict[movie]}: {genres_dict[movie]}: {similarity(v[2628],v[movie])}")
+
+
 print(f"Number of movies outside favourite genre: {top}")
+
+
+#4.2.d average similarity - works fine
+similarities=[]
+com_sim={}
+gen_sim={} #similarity within a genre
+for g in genres:
+    gen_sim[g]=[]
+    com_sim[g]=[]
+
+movies = list(movies_dict.keys())
+for _,movie_1 in enumerate(movies):
+    for movie_2 in movies[_+1:]:
+        s = similarity(v[movie_1],v[movie_2])
+        similarities.append(s)
+        if 'Comedy' in genres_dict[movie_1]:
+            for g in genres_dict[movie_2]:
+                com_sim[g].append(s)
+
+        for g in genres_dict[movie_1]:
+            if g in genres_dict[movie_2]:
+                gen_sim[g].append(s)
+
+print (f"average similarity: {np.average(similarities)}")
+for g in genres:
+    print(f"genre {g} average similarity{np.average(gen_sim[g])}")
+
+#4.2E) similarity within genre
+for g in genres:
+    print(f"genre {g} average similarityto Comedy {np.average(com_sim[g])}")
+
+
+
+
+
+
+
+
 
 """
 for genres_list in top_genres:
